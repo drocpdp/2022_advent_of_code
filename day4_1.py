@@ -7,8 +7,9 @@ class Day4Part1(BaseClass):
         total = 0
         for line in dt:
             range1,range2 = line.split(',')
-            (l1,r1),(l2,r2) = range1.split('-'), range2.split('-')
-            if ( int(l2)>=int(l1) and int(r2)<=int(r1) ) or ( int(l1)>=int(l2) and int(r1)<=int(r2)):
+            (l1, r1), (l2, r2) = range1.split('-'), range2.split('-')
+            l1, r1, l2, r2 = int(l1), int(r1), int(l2), int(r2)
+            if ( l1 in range(l2,r2+1) and r1 in range(l2,r2+1) ) or ( l2 in range(l1,r1+1) and r2 in range(l1,r1+1) ):
                 total += 1
         print(total)
 
