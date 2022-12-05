@@ -27,7 +27,7 @@ class Day5Part1(BaseClass):
             [N] [S] [V] [R] [T] [N] [G] [Z] [W]
              1   2   3   4   5   6   7   8   9             
         """
-        self.stacks = [
+        return  [
                     list("NBDTVGZJ"),
                     list("SRMDWPF"),
                     list("VCRSZ"),
@@ -40,13 +40,13 @@ class Day5Part1(BaseClass):
                 ]
 
     def part1(self):
-        self.get_stacks()
+        stacks = self.get_stacks()
         for inst in self.dt:
             times, frm, to = self.extract_instructions(inst)
             for _ in range(times):
-                self.stacks[to].append(self.stacks[frm].pop())
+                stacks[to].append(stacks[frm].pop())
 
-        print("".join(l[-1] for l in self.stacks))
+        print("".join(l[-1] for l in stacks))
      
 
 if __name__=="__main__":
