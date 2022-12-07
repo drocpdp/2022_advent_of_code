@@ -62,6 +62,17 @@ class Day7Part1(BaseClass):
                                 prev_label = curr['parent']
                             else:
                                 curr = self.root
+            else: # implied as ls
+                if cmd[0] != 'dir':
+                    if 'total_size' not in curr:
+                        curr['total_size'] = 0
+                    if 'files' not in curr: 
+                        curr['files'] = []
+                    if cmd[1] not in curr['files']:
+                        # bet you there are multiple ls's 
+                        curr['total_size'] += int(cmd[0])
+                        curr['files'].append(cmd[1])
+
 
         print(json.dumps(self.root,indent=2))
 
