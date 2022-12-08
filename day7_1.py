@@ -65,6 +65,12 @@ class Day7Part1(BaseClass):
                     self.values[curr.val] = curr.size
 
         print(self.recurse(self.head))
+        print(self.values)
+        total = 0
+        for key in self.values:
+            if self.values[key] <= 100000:
+                total += self.values[key]
+        print(total)
 
     def recurse(self, node): 
         curr_val = node.size
