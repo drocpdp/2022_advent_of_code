@@ -17,25 +17,25 @@ import copy
 import json
 from baseclass import BaseClass
 
+class Node:
+    def __init__(self, val=None):
+        self.val = val
+        self.parent = None
+        self.children = {} #directory name: object
+        self.size = 0
+        self.files = []
+
+
 class Day7Part1(BaseClass):
 
     def __init__(self):
-        self.dt = self.get_data('day7')
-        self.trie = {}
-        self.levels = 0
-        self.all_directories = deque()
-        self.memo = {}
+        self.dt = self.get_data('day7_test')
+        self.head = Node()
+        self.values = {}
 
 
-    def find_node(self, file_struct):
-        head = self.trie
-        for f in file_struct:
-            head = head[f]
-        return head
-
-    def form_trie(self):
-        """ create directory structure (trie) """
-        node = self.trie
+    def main(self):
+        curr = self.head
 
         for line in self.dt:
             cmd = line.split()
@@ -43,85 +43,40 @@ class Day7Part1(BaseClass):
             # cd forward
             if cmd[0] == "$" and cmd[1] == "cd" and cmd[2] != "..":
                 new_dir = cmd[2]
-
-                if 'full_dir' not in node:
-                    node['full_dir'] = []
-
-                if new_dir not in node:
-                    old_full_dir = node['full_dir']
-                    node[new_dir] = {}
-                node = node[new_dir]
-
-                self.all_directories.appendleft(new_dir)
-                
-                if 'full_dir' not in node:
-                    node['full_dir'] = old_full_dir + [new_dir]
-
-                #self.all_directories.appendleft(node['full_dir'])                
-
-                self.levels += 1
+                if new_dir not in curr.children:
+                    new_node = Node(new_dir)
+                    new_node.parent = curr
+                    curr.children[new_dir] = new_node
+                    curr = new_node
+                else:
+                    curr = curr.children[new_dir]
 
             # cd back
-            elif cmd[0] == "$" and cmd[1] == "cd" and cmd[2] == ".." and self.levels > 1:
-                old_dir = node['full_dir'][:]
-                old_dir.pop()
-                node = self.find_node(old_dir)
-                self.levels -= 1
-
+            elif cmd[0] == "$" and cmd[1] == "cd" and cmd[2] == "..":
+                if curr.parent is not None:
+                    curr = curr.parent
 
             # listing
             elif cmd[0] != "$" and cmd[0] != "dir":
                 size, filename = cmd[0], cmd[1]
-                if 'files' not in node:
-                    node['files'] = []
-                if filename not in node['files']:
-                    node['files'].append(filename)
-                    if 'size' not in node:
-                        node['size'] = int(size)
-                    else:
-                        node['size'] += int(size)
+                if filename not in curr.files:
+                    curr.size += int(size)
+                    curr.files.append(filename)
+                    self.values[curr.val] = curr.size
 
+        print(self.recurse(self.head))
 
-    def find_node_exhaustive(self,node):
-        stack = [self.trie]
-        while stack:
-            nd = stack.pop()
-            if node in nd:
-                return nd[node]
-            for edge in nd:
-                if edge not in ('full_dir', 'files', 'size'):
-                    stack.append(nd[edge])
-    
-    def recurse(self, node):
-        keys = [key for key in node if key not in ('full_dir', 'files', 'size')]
-        print(keys)
-        if not len(keys):
-            if 'size' in node:
-                return int(node['size'])
-        for key in keys:
-            self.memo[key] = self.recurse(node[key])
-
-    def compile(self):
-        memo = {}
-        for node in self.all_directories:
-            stack = [node]
-            total = 0
-            while stack:
-                head = self.find_node_exhaustive(stack.pop())
-                if 'size' in head:
-                    total += int(head['size'])
-                keys = [key for key in head if key not in ('full_dir', 'files', 'size')]
-                for key in keys:
-                    stack.append(head[key])
-            memo[node] = total
-
-    def main(self):
-        self.form_trie()
-        print(self.trie)
-        self.compile()
-        
+    def recurse(self, node): 
+        curr_val = node.size
+        if not node.children:
+            return int(curr_val)
+        total = curr_val
+        for key in node.children:
+            total += self.recurse(node.children[key])
+        return total
 
 
 
 if __name__=="__main__":
-    Day7Part1().main()
+    day7 = Day7Part1()
+    day7.main()
